@@ -1,5 +1,7 @@
 language: minimal
 
+sudo: required
+
 branches:
     only:
     - master

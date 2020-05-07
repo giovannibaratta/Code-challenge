@@ -8,6 +8,7 @@ VIRTUAL_ENV_DIR := .virtual_env/
 # Crea l'ambiente virtuale e installa i pacchetti python
 $(VIRTUAL_ENV_DIR):
 	echo "Creating python virtual environment ..."
+	apt-get install python3-venv
 	python3 -m venv $(VIRTUAL_ENV_DIR)
 	( \
 		. $(VIRTUAL_ENV_DIR)/bin/activate; \
