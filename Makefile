@@ -13,7 +13,8 @@ $(VIRTUAL_ENV_DIR):
 	python3 -m venv $(VIRTUAL_ENV_DIR)
 	( \
 		. $(VIRTUAL_ENV_DIR)/bin/activate; \
-		pip install -r requirments.txt; \
+		pip install --upgrade pip; \
+		pip install -r requirement.txt; \
 	)
 
 # Renaiming del comando
@@ -38,6 +39,8 @@ install_terraform_linter: tmp/tflint
 lint_ansible: create_python_venv
 	( \
 		. $(VIRTUAL_ENV_DIR)/bin/activate; \
+		yamllint $(ANSIBLE_FILES); \
+		ansible-playbook $(ANSIBLE_FILES) --syntax-check; \
 		ansible-lint $(ANSIBLE_FILES) \
 	)
 
