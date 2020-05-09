@@ -13,6 +13,7 @@
         name: virtualenv
         state: present
         update_cache: true
+        allow_unauthenticated: true
 
     - name: Install fd package
       apt:
@@ -27,6 +28,6 @@
     - name: Create virtual environment
       pip:
         virtualenv: "{{ virtual_env_path }}"
-        virtualenv_python: "python3.8"
+        #virtualenv_python: "python3.8"
         state: present
         requirements: "{{ virtual_env_path }}/requirements.txt"
