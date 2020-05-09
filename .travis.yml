@@ -15,10 +15,10 @@ addons:
         update: true
         packages:
             - ansible
-            - fd-find
 
 env:
     - ROOT_PATH=$TRAVIS_BUILD_DIR
+
 
 install:
     - scripts/install.sh

@@ -10,5 +10,5 @@ fi
 
 CURRENT_DIRECTORY=$( pwd )
 cd "$DIR_TO_SCAN"
-# fdfind usa di default i file .fdignore .gitignore
-fdfind --max-depth 15 --type file --extension yml --hidden --absolute-path
+# fd usa di default i file .fdignore .gitignore
+fd --max-depth 15 --type file --extension yml --hidden --absolute-path
