@@ -1,0 +1,12 @@
+---
+- name: "Create cloudformation stack"
+  cloudformation:
+    stack_name: "network"
+    state: "present"
+    region: "us-east-1"
+    disable_rollback: false
+    template_body: "cloudformation/network.yml"
+    template_parameters:
+        include_vars:
+            file: "cloudformation/network.json"
+            name: "network parameters file"

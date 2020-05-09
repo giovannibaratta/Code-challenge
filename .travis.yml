@@ -1,10 +1,25 @@
 language: minimal
+os: linux
+dist: bionic
 
-sudo: required
+python:
+    - 3.8
+    - pypy3
 
 branches:
     only:
     - master
+env:
+    global:
+        - ROOT_PATH=$TRAVIS_BUILD_DIR
 
-script:
-    make lint
+install:
+    - scripts/install.sh
+
+before_script: 
+    # linting phase
+    - scripts/yamllint.sh
+    - scripts/ansible_lint.sh
+
+deploy:
+    #
