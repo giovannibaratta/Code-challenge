@@ -12,4 +12,6 @@ VIRTUAL_ENV_DIR=$( $SCRIPT_DIR/retrieve_virtual_environment_dir.sh )
 
 . "$VIRTUAL_ENV_DIR/bin/activate"
 ansible-lint $ANSIBLE_FILES
+LINT_EXIT_CODE=$?
 deactivate
+exit $LINT_EXIT_CODE

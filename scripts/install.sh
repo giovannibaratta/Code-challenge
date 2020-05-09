@@ -5,4 +5,7 @@ then
     exit 1
 fi
 
-ansible-playbook "$ROOT_PATH/ansible/configure_building_environment.yml"
+ansible --version
+
+cd "$ROOT_PATH/ansible"
+ansible-playbook "configure_building_environment.yml"
