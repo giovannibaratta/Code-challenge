@@ -9,13 +9,6 @@ python:
 branches:
     only:
     - master
-
-addons:
-    apt:
-        update: true
-        packages:
-            - ansible
-
 env:
     - ROOT_PATH=$TRAVIS_BUILD_DIR
 

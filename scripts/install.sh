@@ -5,6 +5,12 @@ then
     exit 1
 fi
 
+# Install ansible
+sudo apt update
+sudo apt install software-properties-common
+sudo apt-add-repository --yes --update ppa:ansible/ansible
+sudo apt install ansible
+
 ansible --version
 
 cd "$ROOT_PATH/ansible"
