@@ -12,8 +12,6 @@ branches:
 env:
     global:
         - ROOT_PATH=$TRAVIS_BUILD_DIR
-        - ANSIBLE_PYTHON_INTERPRETER=$( which python3 )
-
 
 install:
     - scripts/install.sh
