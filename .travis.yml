@@ -15,7 +15,7 @@ addons:
         update: true
         packages:
             - ansible
-            - fdfind
+            - fd-find
 
 env:
     - ROOT_PATH=$TRAVIS_BUILD_DIR
