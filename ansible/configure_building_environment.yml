@@ -1,0 +1,27 @@
+# Configure the local system in order to run the linting and test steps.
+---
+
+- hosts: localhost
+  name: "install python3-venv"
+  become: true
+  gather_facts: false
+  vars_files: vars/configure_building_environment.yml
+
+  tasks:
+    - name: Install virtualenv
+      apt:
+        name: virtualenv
+        state: present
+        update_cache: true
+
+    - name: Copy requirements
+      copy:
+        src: requirements.txt
+        dest: "{{ virtual_env_path }}"
+
+    - name: Create virtual environment
+      pip:
+        virtualenv: "{{ virtual_env_path }}"
+        virtualenv_python: "python3.8"
+        state: present
+        requirements: "{{ virtual_env_path }}/requirements.txt"
