@@ -1,0 +1,3 @@
+Invocare nel file travis i file per il deployment
+Secure docker service
+Assegnare credenziali all'ansible controller per poter fare le query di AWS

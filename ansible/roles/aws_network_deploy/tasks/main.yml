@@ -1,0 +1,17 @@
+---
+- name: "Load vars"
+  include_vars: network.yml
+
+- name: "Generate template"
+  template:
+    src: network.yml.j2
+    dest: files/cloudformation/network.yml
+
+- name: "Create cloudformation stack"
+  cloudformation:
+    stack_name: "{{ ProjectName }}-network"
+    state: "present"
+    region: "us-east-1"
+    disable_rollback: false
+    template_body: "{{ lookup('file', 'files/cloudformation/network.yml') }}"
+    template_parameters: "{{ lookup('file', 'vars/network.yml') | from_yaml }}"

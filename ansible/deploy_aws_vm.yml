@@ -1,0 +1,6 @@
+---
+- name: "Deploy CentOs virtual machine in AWS"
+  hosts: localhost
+  roles:
+    - aws_network_deploy
+    - aws_ec2_deploy
