@@ -4,7 +4,7 @@ regions:
 
 filters:
     tag:Name: Docker*
-    key-name: ansible_controller
+    key-name: docker_nodes
     instance-state-name: running
 
 groups:

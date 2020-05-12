@@ -8,20 +8,15 @@ then
     exit 1
 fi
 
-if [ ! ${PYTHON_INTERPRETER:-} ]
-then 
-    echo "PYTHON_INTERPRETER not set"
-    exit 1
-fi
-
-CI_SCRIPT_DIR="$ROOT_PATH/ci/scripts/"
+CI_SCRIPT_DIR="$ROOT_PATH/ci/scripts"
 VIRTUAL_ENV_DIR=$( $CI_SCRIPT_DIR/retrieve_virtual_environment_dir.sh )
+echo "VIRTUAL_ENV_DIR -> $VIRTUAL_ENV_DIR"
 
 . "$VIRTUAL_ENV_DIR/bin/activate"
 cd "$ROOT_PATH/aws/ansible"
 
 ansible-playbook -i inventories/localhost.yml deploy_aws_ec2.yml \
-        -e ansible_python_interpreter="$PYTHON_INTERPRETER"
+        -e ansible_python_interpreter="$VIRTUAL_ENV_DIR/bin/python"
 
 ANSIBLE_PLAYBOOK_EXIT_CODE=$?
 deactivate

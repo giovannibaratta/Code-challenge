@@ -86,25 +86,26 @@ Resources:
 
     EC2ListRole:
         Type: AWS::IAM::Role
-        Properties: 
+        Properties:
             AssumeRolePolicyDocument:
                 Version: 2012-10-17
-                Statement: 
+                Statement:
                 - Effect: "Allow"
                   Principal: 
                     Service: 
                         - "ec2.amazonaws.com"
-                  Action: 
+                  Action:
                         - "sts:AssumeRole"
             Description: Enable listing of EC2 istances
-            Policies: 
+            Policies:
                 - PolicyName: root
                   PolicyDocument:
                     Version: 2012-10-17
                     Statement:
                       - Effect: Allow
-                        Action: "ec2:List"
-            Tags: 
+                        Action: "ec2:Describe*"
+                        Resource: "*"
+            Tags:
                 - Key: ProjectName
                   Value: !Sub ${ProjectName}
 
@@ -165,10 +166,19 @@ Resources:
             GroupName: docker manager security group
             GroupDescription: Enable ingress/egress connecttion for docker manager service.
             # https://www.digitalocean.com/community/tutorials/how-to-configure-the-linux-firewall-for-docker-swarm-on-ubuntu-16-04
+            
             SecurityGroupEgress:
-                - CidrIp: 127.0.0.1/32
-                  Description: Block egress traffic
-                  IpProtocol: -1
+            -   CidrIp: 0.0.0.0/0
+                Description: Allow outbound HTTP access to the Internet
+                FromPort: 80
+                IpProtocol: tcp
+                ToPort: 80
+            -   CidrIp: 0.0.0.0/0
+                Description: Allow outbound HTTPS access to the Internet
+                FromPort: 443
+                IpProtocol: tcp
+                ToPort: 443
+
             SecurityGroupIngress: 
                 -   CidrIp: 
                         Fn::ImportValue:
@@ -221,10 +231,26 @@ Resources:
             GroupName: docker Worker security group
             GroupDescription: Enable ingress/egress connecttion for docker worker service.
             # https://www.digitalocean.com/community/tutorials/how-to-configure-the-linux-firewall-for-docker-swarm-on-ubuntu-16-04
+            
             SecurityGroupEgress:
-                - CidrIp: 127.0.0.1/32
-                  Description: Block egress traffic
-                  IpProtocol: -1
+            -   CidrIp: 0.0.0.0/0
+                Description: Allow outbound HTTP access to the Internet
+                FromPort: 80
+                IpProtocol: tcp
+                ToPort: 80
+            -   CidrIp: 0.0.0.0/0
+                Description: Allow outbound HTTPS access to the Internet
+                FromPort: 443
+                IpProtocol: tcp
+                ToPort: 443
+            -   CidrIp: 
+                    Fn::ImportValue:
+                        Fn::Sub: "${ProjectName}-vpcCidrBlock"
+                Description: Swarm connection
+                FromPort: 2377
+                IpProtocol: tcp
+                ToPort: 2377
+
             SecurityGroupIngress: 
                 -   CidrIp: 
                         Fn::ImportValue:

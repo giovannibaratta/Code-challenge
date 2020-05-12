@@ -5,16 +5,18 @@ then
     exit 1
 fi
 
-SCRIPT_DIR="$ROOT_PATH/scripts"
-VIRTUAL_ENV_DIR=$( $SCRIPT_DIR/retrieve_virtual_environment_dir.sh )
+CI_SCRIPT_DIR="$ROOT_PATH/ci/scripts"
+VIRTUAL_ENV_DIR=$( $CI_SCRIPT_DIR/retrieve_virtual_environment_dir.sh )
+echo "VIRTUAL_ENV_DIR -> $VIRTUAL_ENV_DIR"
 
 . "$VIRTUAL_ENV_DIR/bin/activate"
-cd "$ROOT_PATH/ansible"
-ansible-playbook -i inventories/ansible_controller_aws_ec2.yml configure_ansible_controller.yml --private-key "$ROOT_PATH/ansible/files/ssh_keys/ansible_controller.pem"
-if [ "$?" -ne 0 ]
-then
-    echo "Errore durante l'esecuzione del playbook"
-    exit 1
-fi
+cd "$ROOT_PATH/aws/ansible"
+
+ansible-playbook -i inventories/ansible_controller_aws_ec2.yml \
+    configure_ansible_controller.yml \
+    --private-key "$ROOT_PATH/aws/ansible/files/ssh_keys/ansible_controller.pem"
+
+
+ANSIBLE_PLAYBOOK_EXIT_CODE=$?
 deactivate
-ssh -i "$ROOT_PATH/ansible/files/ssh_keys/ansible_controller.pem" centos@$(cat /tmp/ansible_controller_address) 'export ROOT_PATH=~/Code-challenge; ~/Code-challenge/scripts/configure_docker.sh'
+exit $ANSIBLE_PLAYBOOK_EXIT_CODE

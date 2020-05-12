@@ -6,8 +6,8 @@
   vars:
     epel_dest: '/tmp/epel.rpm'
     local_project_root_dir: "{{ lookup('env', 'ROOT_PATH') }}"
-    remote_project_root_dir: '~/repo'
-  
+    remote_project_root_dir: '~'
+
   tasks:
     - name: "Test local ROOT PATH env variable"
       debug:
@@ -32,11 +32,10 @@
         state: present
         update_cache: true
         name:
-          #- 'python3-3.6.8-13.el7'
-          - 'python-pip-8.1.2-12.el7'
-          - 'ansible-2.9.7-1.el7'
-          - 'unzip-6.0-21.el7'
-    
+          - 'python-pip'
+          - 'ansible-2.9.7*'
+          - 'unzip-6.0-21*'
+
     - name: Copy requirements
       copy:
         src: python_requirements.txt
@@ -45,44 +44,32 @@
     - name: "Install pip requirements"
       become: true
       pip:
-        state: latest
+        state: present
         requirements: /tmp/requirements.txt
 
-    - name: "Copy private ssh key"
-      copy:
-        src: "{{ project_root_dir }}/aws/ansible/files/ssh_keys/docker_nodes.pem"
-        dest: '~/.ssh/private_key.ssh'
-        mode: '0400'
-
-    - name: "Clean remote repo"
-      file:
-        state: absent
-        path: "{{ remote_project_root_dir }}"
-
     - name: "Zip local repo"
-      local_action: archive
-      args:
-        path: "{{ project_root_dir }}"
+      delegate_to: 127.0.0.1
+      archive:
+        path: "{{ local_project_root_dir }}"
         dest: /tmp/archive_repo.zip
         format: zip
-    
+
     - name: "Copy and unzip archive"
       unarchive:
         remote_src: false
         src: '/tmp/archive_repo.zip'
         dest: "{{ remote_project_root_dir }}"
-    
-    - name: "Delete controllerr addressh if present [local]"
-      local_action: file
-      args:
+
+    - name: "Delete controller addressh if present [local]"
+      delegate_to: 127.0.0.1
+      file:
         state: absent
         path: "/tmp/ansible_controller_address"
 
     - name: "Write controller address [local]"
-      local_action: lineinfile
-      args:
-          create: yes
-          state: present
-          path: "/tmp/ansible_controller_address"
-          line: "{{ inventory_hostname }}"
-
+      delegate_to: 127.0.0.1
+      lineinfile:
+        create: true
+        state: present
+        path: "/tmp/ansible_controller_address"
+        line: "{{ inventory_hostname }}"

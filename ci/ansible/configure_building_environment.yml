@@ -10,7 +10,7 @@
     - name: Install virtualenv
       become: true
       apt:
-        name: "virtualenv{{ virtual_env_version }}"
+        name: "virtualenv={{ virtual_env_version }}"
         state: present
         update_cache: true
         allow_unauthenticated: true

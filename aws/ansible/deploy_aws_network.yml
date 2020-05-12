@@ -1,5 +1,16 @@
 ---
 - name: "Deploy VPC in AWS"
   hosts: localhost
+  pre_tasks:
+    - name: "Python & Pip version"
+      shell: |
+        python --version
+        pip freeze
+      register: SEQOUT
+
+    - name: "Python & Pip version output"
+      debug:
+        msg: "{{ SEQOUT.stdout_lines }}"
+
   roles:
     - aws_network_deploy

@@ -7,11 +7,26 @@ fi
 
 SCRIPT_DIR="$ROOT_PATH/ci/scripts"
 
-ANSIBLE_FILES=$( $SCRIPT_DIR/collect_ansible_files.sh $ROOT_PATH/aws/ansible/ )
+AWS_ANSIBLE_FILES=$( $SCRIPT_DIR/collect_ansible_files.sh $ROOT_PATH/aws/ansible/ )
+CONTROLLER_ANSIBLE_FILES=$( $SCRIPT_DIR/collect_ansible_files.sh $ROOT_PATH/ansible_controller/ansible/ )
 VIRTUAL_ENV_DIR=$( $SCRIPT_DIR/retrieve_virtual_environment_dir.sh )
 
 . "$VIRTUAL_ENV_DIR/bin/activate"
-ansible-lint $ANSIBLE_FILES
-LINT_EXIT_CODE=$?
+ansible-lint $AWS_ANSIBLE_FILES
+
+if [ "$?" -ne 0 ]
+then
+    echo "Linting aws non superato"
+    exit 1
+fi
+
+ansible-lint $CONTROLLER_ANSIBLE_FILES
+
+if [ "$?" -ne 0 ]
+then
+    echo "Linting controller non superato"
+    exit 1
+fi
+
 deactivate
-exit $LINT_EXIT_CODE
+exit 0

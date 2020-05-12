@@ -1,4 +1,4 @@
 ---
-virtual_env_version: "15.1.0"
-virtual_env_path: /tmp/.virtual_env/
+virtual_env_version: '15.1.0*'
+virtual_env_path: /tmp/.virtual_env
 fd_download_path: https://github.com/sharkdp/fd/releases/download/v8.0.0/fd_8.0.0_amd64.deb
