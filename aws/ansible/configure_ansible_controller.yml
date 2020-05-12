@@ -1,0 +1,88 @@
+# CentOs instance
+---
+- hosts: all
+  name: "Configure ansible controller"
+  vars_files: "vars/configure_ansible_controller.yml"
+  vars:
+    epel_dest: '/tmp/epel.rpm'
+    local_project_root_dir: "{{ lookup('env', 'ROOT_PATH') }}"
+    remote_project_root_dir: '~/repo'
+  
+  tasks:
+    - name: "Test local ROOT PATH env variable"
+      debug:
+        msg: "Local root path : {{ local_project_root_dir }}"
+
+    - name: "Download epel package"
+      get_url:
+        url: "{{ epel_release_url }}"
+        dest: "{{ epel_dest }}"
+
+    - name: "Install epel"
+      become: true
+      yum:
+        state: present
+        update_cache: true
+        name:
+          - "{{ epel_dest }}"
+
+    - name: "Install dependencies"
+      become: true
+      yum:
+        state: present
+        update_cache: true
+        name:
+          #- 'python3-3.6.8-13.el7'
+          - 'python-pip-8.1.2-12.el7'
+          - 'ansible-2.9.7-1.el7'
+          - 'unzip-6.0-21.el7'
+    
+    - name: Copy requirements
+      copy:
+        src: python_requirements.txt
+        dest: /tmp/requirements.txt
+
+    - name: "Install pip requirements"
+      become: true
+      pip:
+        state: latest
+        requirements: /tmp/requirements.txt
+
+    - name: "Copy private ssh key"
+      copy:
+        src: "{{ project_root_dir }}/aws/ansible/files/ssh_keys/docker_nodes.pem"
+        dest: '~/.ssh/private_key.ssh'
+        mode: '0400'
+
+    - name: "Clean remote repo"
+      file:
+        state: absent
+        path: "{{ remote_project_root_dir }}"
+
+    - name: "Zip local repo"
+      local_action: archive
+      args:
+        path: "{{ project_root_dir }}"
+        dest: /tmp/archive_repo.zip
+        format: zip
+    
+    - name: "Copy and unzip archive"
+      unarchive:
+        remote_src: false
+        src: '/tmp/archive_repo.zip'
+        dest: "{{ remote_project_root_dir }}"
+    
+    - name: "Delete controllerr addressh if present [local]"
+      local_action: file
+      args:
+        state: absent
+        path: "/tmp/ansible_controller_address"
+
+    - name: "Write controller address [local]"
+      local_action: lineinfile
+      args:
+          create: yes
+          state: present
+          path: "/tmp/ansible_controller_address"
+          line: "{{ inventory_hostname }}"
+

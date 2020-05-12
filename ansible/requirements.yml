@@ -1,4 +1,0 @@
----
-roles:
-  - name: geerlingguy.docker
-    version: 2.7.0

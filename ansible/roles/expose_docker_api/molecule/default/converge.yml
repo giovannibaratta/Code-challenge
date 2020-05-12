@@ -1,7 +1,0 @@
----
-- name: Converge
-  hosts: all
-  tasks:
-    - name: "Include expose_docker_api"
-      include_role:
-        name: "expose_docker_api"

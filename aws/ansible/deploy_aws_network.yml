@@ -1,0 +1,5 @@
+---
+- name: "Deploy VPC in AWS"
+  hosts: localhost
+  roles:
+    - aws_network_deploy
