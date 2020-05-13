@@ -11,7 +11,7 @@
 
       - name: "Python & Pip version output"
         debug:
-          msg: "{{ SEQOUT.stdout_lines }}"
+            msg: "{{ SEQOUT.stdout_lines }}"
 
   roles:
-    - aws_ec2_deploy
+      - aws_ec2_deploy
