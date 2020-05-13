@@ -20,6 +20,8 @@ then
     exit 1
 fi
 
+echo "Linting aws superato"
+
 ansible-lint $CONTROLLER_ANSIBLE_FILES
 
 if [ "$?" -ne 0 ]
@@ -27,6 +29,8 @@ then
     echo "Linting controller non superato"
     exit 1
 fi
+
+echo "Linting controller superato"
 
 deactivate
 exit 0

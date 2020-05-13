@@ -21,6 +21,8 @@ then
     exit 1
 fi
 
+echo "Linting aws superato"
+
 yamllint -c "$YAML_LINT_CONFIG" $CONTROLLER_ANSIBLE_FILES
 
 if [ "$?" -ne 0 ]
@@ -28,6 +30,8 @@ then
     echo "Yamllint controller non superato"
     exit 1
 fi
+
+echo "Linting controller superato"
 
 deactivate
 exit 0
