@@ -10,7 +10,7 @@ branches:
 env:
   global:
   - ROOT_PATH=$TRAVIS_BUILD_DIR
-  - ANSIBLE_VERSION='2.9.7*'
+  - ANSIBLE_VERSION='2.9.6*'
   - DOCKER_PATH=ansible_controller/ansible/files/ssh_keys
   - ANSIBLE_PATH=aws/ansible/files/ssh_keys
   - PYTHON_INTERPRETER=$( which python3 )
@@ -19,7 +19,7 @@ before_install:
 # https://github.com/travis-ci/travis.rb/issues/555
 - openssl aes-256-cbc -d -K $DOCKER_KEY -iv $DOCKER_IV -in $DOCKER_PATH/docker_nodes.pem.enc -out $DOCKER_PATH/docker_nodes.pem
 - openssl aes-256-cbc -d -K $ANSIBLE_KEY -iv $ANSIBLE_IV -in $ANSIBLE_PATH/ansible_controller.pem.enc -out $ANSIBLE_PATH/ansible_controller.pem
-- echo "PYTHON_INTERPRETE $PYTHON_INTERPRETER"
+- echo "PYTHON_INTERPRETER $PYTHON_INTERPRETER"
 
 install:
 - ci/scripts/install_dependencies.sh
