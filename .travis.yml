@@ -22,10 +22,16 @@ before_install:
 - echo "PYTHON_INTERPRETER $PYTHON_INTERPRETER"
 
 install:
-- ci/scripts/install_dependencies.sh
+  - ci/scripts/install_dependencies.sh
+
 before_script:
-- ci/scripts/yamllint.sh
-- ci/scripts/ansible_lint.sh
+  - ci/scripts/yamllint.sh
+  - ci/scripts/ansible_lint.sh
+
+before_deploy:
+  - sudo apt install tree
+  - tree $ROOT_PATH
+
 deploy:
   - provider: script
     skip_cleanup: true
