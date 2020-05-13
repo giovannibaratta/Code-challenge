@@ -23,14 +23,14 @@ before_install:
 
 
 install:
-- ./ci/scripts/install_dependencies.sh
+- $ROOT_PATH/ci/scripts/install_dependencies.sh
 before_script:
-- ./ci/scripts/yamllint.sh
-- ./ci/scripts/ansible_lint.sh
+- $ROOT_PATH/ci/scripts/yamllint.sh
+- $ROOT_PATH/ci/scripts/ansible_lint.sh
 deploy:
   - provider: script
     script:
-      - ./aws/scripts/deploy_network.sh
-      - ./aws/scripts/deploy_ec2.sh
-      - ./aws/scripts/configure_ansible_controller.sh
-      - ./aws/scripts/launch_docker_configuration.sh
+      - $ROOT_PATH/aws/scripts/deploy_network.sh
+      - $ROOT_PATH/aws/scripts/deploy_ec2.sh
+      - $ROOT_PATH/aws/scripts/configure_ansible_controller.sh
+      - $ROOT_PATH/aws/scripts/launch_docker_configuration.sh
