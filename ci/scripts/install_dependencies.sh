@@ -23,8 +23,10 @@ fi
 
 # Install ansible
 sudo apt update
-sudo apt install software-properties-common
-sudo apt-add-repository --yes --update ppa:ansible/ansible
+sudo apt install -y software-properties-common
+sudo apt-add-repository --yes ppa:ansible/ansible
+sudo apt update
+sudo apt-cache madison ansible
 sudo apt install -y ansible="$ANSIBLE_VERSION"
 sudo rm /etc/apt/sources.list.d/ansible*
 
