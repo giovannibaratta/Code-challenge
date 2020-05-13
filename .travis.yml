@@ -11,7 +11,7 @@ env:
   global:
   - ROOT_PATH=$TRAVIS_BUILD_DIR
   - ANSIBLE_VERSION='2.9.7*'
-  - "$( which python3 )"
+  - ANSIBLE_PYTHON_INTERPRETER=$( which python3 )
   - DOCKER_PATH=ansible_controller/ansible/files/ssh_keys
   - ANSIBLE_PATH=aws/ansible/files/ssh_keys
 
