@@ -13,11 +13,8 @@ env:
   - ANSIBLE_VERSION='2.9.7*'
   - "$( which python3 )"
 before_install:
-- openssl aes-256-cbc -K $encrypted_c9d8d7831778_key -iv $encrypted_c9d8d7831778_iv -in ansible_controller/ansible/files/ssh_keys/docker_nodes.pem.enc -out ansible_controller/ansible/files/ssh_keys/docker_nodes.pem -d
-- openssl aes-256-cbc -K $encrypted_8b859042e126_key -iv $encrypted_8b859042e126_iv -in aws/ansible/files/ssh_keys/ansible_controller.pem.enc -out aws/ansible/files/ssh_keys/ansible_controller.pem -d
-
-
-  
+- openssl aes-256-cbc -K $encrypted_0c6a0d3db87a_key -iv $encrypted_0c6a0d3db87a_iv -in ansible_controller.pem.enc -out aws/ansible/files/ssh_keys/ansible_controller.pem -d
+- openssl aes-256-cbc -K $encrypted_4a18f61c0b67_key -iv $encrypted_4a18f61c0b67_iv -in docker_nodes.pem.enc -out ansible_controller/ansible/files/ssh_keys/docker_nodes.pem -d
 
 install:
 - ci/scripts/install_dependencies.sh
