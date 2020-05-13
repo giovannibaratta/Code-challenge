@@ -21,7 +21,9 @@ for INDEX in $( seq 1 $RETRIES ); do
         configure_ansible_controller.yml \
         --private-key "$ROOT_PATH/aws/ansible/files/ssh_keys/ansible_controller.pem"
 
-    if [ "$?" -eq 0 ]
+    ANSIBLE_PLAYBOOK_EXIT_CODE=$?
+
+    if [ "$ANSIBLE_PLAYBOOK_EXIT_CODE" -eq 0 ]
     then
         break
     fi
@@ -30,6 +32,5 @@ for INDEX in $( seq 1 $RETRIES ); do
 
 done
 
-ANSIBLE_PLAYBOOK_EXIT_CODE=$?
 deactivate
 exit $ANSIBLE_PLAYBOOK_EXIT_CODE
