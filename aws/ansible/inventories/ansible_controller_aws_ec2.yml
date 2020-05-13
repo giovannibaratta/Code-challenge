@@ -1,0 +1,11 @@
+plugin: aws_ec2
+regions:
+    - us-east-1
+
+filters:
+    tag:Name: AnsibleController
+    key-name: ansible_controller
+    instance-state-name: running
+
+compose:
+    ansible_user: "'centos'"

@@ -1,0 +1,16 @@
+---
+- hosts: all
+  vars:
+    skip_docker_py: true
+    skip_docker_compose: true
+    docker_swarm_port: 2377
+    docker_service_override: |
+        [Service]
+        ExecStart=
+        ExecStart=/usr/bin/dockerd -H fd:// -H tcp://0.0.0.0:2376
+
+  roles:
+    - role: create_fs
+      become: true
+    - role: atosatto.docker-swarm
+      become: true

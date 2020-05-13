@@ -1,0 +1,5 @@
+---
+# vars file for create_fs
+device_path: "/dev/xvdb"
+mounting_point: "/more_space"
+file_system_type: "ext4"

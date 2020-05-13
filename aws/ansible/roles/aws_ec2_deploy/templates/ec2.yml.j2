@@ -1,0 +1,291 @@
+Description: EC2
+
+Parameters: 
+    ProjectName:
+        Description: Project name 
+        Type: String
+
+Resources: 
+    
+    ######################
+    # INSTANCE TEMPLATES #
+    ######################
+
+    dockerNodeTemplate:
+        Type: AWS::EC2::LaunchTemplate
+        Properties: 
+            LaunchTemplateName: DockerNodeLaunchTemplpublicPrivateate
+            LaunchTemplateData: 
+                InstanceType: t2.micro
+                ImageId: ami-0083662ba17882949 # CentOs minimal
+                KeyName: docker_nodes
+                BlockDeviceMappings:
+                    -   DeviceName: /dev/sdb
+                        Ebs:
+                            VolumeSize: 40
+
+    ######################
+    ##### INSTANCES ######
+    ######################
+
+    dockerManager:
+        Type: AWS::EC2::Instance
+        Properties:
+            LaunchTemplate:
+                LaunchTemplateId: !Ref dockerNodeTemplate
+                Version: 1
+            SubnetId:
+                Fn::ImportValue: 
+                    Fn::Sub: "${ProjectName}-publicSubnet1Id"
+            SecurityGroupIds: 
+                - !GetAtt dockerManagerSecurityGroup.GroupId
+            Tags:
+                - Key: DockerType
+                  Value: Manager
+                - Key: Name
+                  Value: DockerManager
+
+    dockerWorker:
+        Type: AWS::EC2::Instance
+        Properties:
+            LaunchTemplate:
+                LaunchTemplateId: !Ref dockerNodeTemplate
+                Version: 1
+            SubnetId:
+                Fn::ImportValue: 
+                    Fn::Sub: "${ProjectName}-privateSubnet1Id"
+            SecurityGroupIds: 
+                - !GetAtt dockerWorkerSecurityGroup.GroupId
+            Tags:
+                - Key: DockerType
+                  Value: Worker
+                - Key: Name
+                  Value: DockerWorker
+
+    ansibleController:
+        Type: AWS::EC2::Instance
+        Properties: 
+            ImageId: ami-0083662ba17882949
+            InstanceType: t2.micro
+            KeyName: ansible_controller
+            IamInstanceProfile: !Ref EC2Profile
+            SecurityGroupIds: 
+                - !GetAtt ansibleControllerSecurityGroup.GroupId
+            SubnetId:
+                Fn::ImportValue: 
+                    Fn::Sub: "${ProjectName}-publicSubnet1Id"
+            Tags: 
+                - Key: ProjectName
+                  Value: !Sub ${ProjectName}
+                - Key: Name
+                  Value: AnsibleController
+
+    ######################
+    ######## ROLES #######
+    ######################
+
+    EC2ListRole:
+        Type: AWS::IAM::Role
+        Properties:
+            AssumeRolePolicyDocument:
+                Version: 2012-10-17
+                Statement:
+                - Effect: "Allow"
+                  Principal: 
+                    Service: 
+                        - "ec2.amazonaws.com"
+                  Action:
+                        - "sts:AssumeRole"
+            Description: Enable listing of EC2 istances
+            Policies:
+                - PolicyName: root
+                  PolicyDocument:
+                    Version: 2012-10-17
+                    Statement:
+                      - Effect: Allow
+                        Action: "ec2:Describe*"
+                        Resource: "*"
+            Tags:
+                - Key: ProjectName
+                  Value: !Sub ${ProjectName}
+
+
+    EC2Profile:
+        Type: AWS::IAM::InstanceProfile
+        Properties: 
+            Roles:
+                - !Ref EC2ListRole
+
+    ######################
+    ## SECURITY GROUPS ###
+    ######################
+
+    ansibleControllerSecurityGroup:
+        Type: AWS::EC2::SecurityGroup
+        Properties:
+            GroupName: Ansibel controller security group
+            GroupDescription: Enable ingress/egress SSH connection for ansible controller
+            SecurityGroupIngress: 
+                -   CidrIp: 0.0.0.0/0
+                    Description: Enable global IN SSH
+                    FromPort: 22
+                    IpProtocol: tcp
+                    ToPort: 22
+            
+            SecurityGroupEgress: 
+                -   CidrIp: 
+                        Fn::ImportValue:
+                            Fn::Sub: "${ProjectName}-vpcCidrBlock"
+                    Description: Enable local OUT SSH
+                    FromPort: 22
+                    IpProtocol: tcp
+                    ToPort: 22
+
+                -   CidrIp: 0.0.0.0/0
+                    Description: Enable global HTTP for update
+                    FromPort: 80
+                    IpProtocol: tcp
+                    ToPort: 80
+
+                -   CidrIp: 0.0.0.0/0
+                    Description: Enable global HTTPS for update
+                    FromPort: 443
+                    IpProtocol: tcp
+                    ToPort: 443
+            Tags: 
+                - Key: ProjectName
+                  Value: !Sub ${ProjectName}
+            VpcId: 
+                Fn::ImportValue: 
+                    Fn::Sub: "${ProjectName}-vpcId"
+
+
+    dockerManagerSecurityGroup:
+        Type: AWS::EC2::SecurityGroup
+        Properties:
+            GroupName: docker manager security group
+            GroupDescription: Enable ingress/egress connecttion for docker manager service.
+            # https://www.digitalocean.com/community/tutorials/how-to-configure-the-linux-firewall-for-docker-swarm-on-ubuntu-16-04
+            
+            SecurityGroupEgress:
+            -   CidrIp: 0.0.0.0/0
+                Description: Allow outbound HTTP access to the Internet
+                FromPort: 80
+                IpProtocol: tcp
+                ToPort: 80
+            -   CidrIp: 0.0.0.0/0
+                Description: Allow outbound HTTPS access to the Internet
+                FromPort: 443
+                IpProtocol: tcp
+                ToPort: 443
+
+            SecurityGroupIngress: 
+                -   CidrIp: 
+                        Fn::ImportValue:
+                            Fn::Sub: "${ProjectName}-vpcCidrBlock"
+                    Description: Enable local IN SSH
+                    FromPort: 22
+                    IpProtocol: tcp
+                    ToPort: 22
+
+                -   CidrIp: 0.0.0.0/0
+                    Description: Enable docker REST API
+                    FromPort: 2376
+                    IpProtocol: tcp
+                    ToPort: 2376
+                
+                -   CidrIp: 
+                        Fn::ImportValue:
+                            Fn::Sub: "${ProjectName}-vpcCidrBlock"
+                    Description: Enable docker cluster management
+                    FromPort: 2377
+                    IpProtocol: tcp
+                    ToPort: 2377
+
+                -   CidrIp: 
+                        Fn::ImportValue:
+                            Fn::Sub: "${ProjectName}-vpcCidrBlock"
+                    Description: Enable docker overlay network traffic
+                    FromPort: 4789
+                    IpProtocol: udp
+                    ToPort: 4789
+
+                -   CidrIp: 
+                        Fn::ImportValue:
+                            Fn::Sub: "${ProjectName}-vpcCidrBlock"
+                    Description: Enable docker comunication
+                    FromPort: 7946
+                    IpProtocol: -1
+                    ToPort: 7946
+
+            Tags: 
+                - Key: ProjectName
+                  Value: !Sub ${ProjectName}
+            VpcId: 
+                Fn::ImportValue: 
+                    Fn::Sub: "${ProjectName}-vpcId"
+
+    dockerWorkerSecurityGroup:
+        Type: AWS::EC2::SecurityGroup
+        Properties:
+            GroupName: docker Worker security group
+            GroupDescription: Enable ingress/egress connecttion for docker worker service.
+            # https://www.digitalocean.com/community/tutorials/how-to-configure-the-linux-firewall-for-docker-swarm-on-ubuntu-16-04
+            
+            SecurityGroupEgress:
+            -   CidrIp: 0.0.0.0/0
+                Description: Allow outbound HTTP access to the Internet
+                FromPort: 80
+                IpProtocol: tcp
+                ToPort: 80
+            -   CidrIp: 0.0.0.0/0
+                Description: Allow outbound HTTPS access to the Internet
+                FromPort: 443
+                IpProtocol: tcp
+                ToPort: 443
+            -   CidrIp: 
+                    Fn::ImportValue:
+                        Fn::Sub: "${ProjectName}-vpcCidrBlock"
+                Description: Swarm connection
+                FromPort: 2377
+                IpProtocol: tcp
+                ToPort: 2377
+
+            SecurityGroupIngress: 
+                -   CidrIp: 
+                        Fn::ImportValue:
+                            Fn::Sub: "${ProjectName}-vpcCidrBlock"
+                    Description: Enable local SSH
+                    FromPort: 22
+                    IpProtocol: tcp
+                    ToPort: 22
+
+                -   CidrIp: 
+                        Fn::ImportValue:
+                            Fn::Sub: "${ProjectName}-vpcCidrBlock"
+                    Description: Enable docker overlay network traffic
+                    FromPort: 4789
+                    IpProtocol: udp
+                    ToPort: 4789
+
+                -   CidrIp: 
+                        Fn::ImportValue:
+                            Fn::Sub: "${ProjectName}-vpcCidrBlock"
+                    Description: Enable docker comunication
+                    FromPort: 7946
+                    IpProtocol: -1
+                    ToPort: 7946
+
+            Tags: 
+                - Key: ProjectName
+                  Value: !Sub ${ProjectName}
+            VpcId: 
+                Fn::ImportValue: 
+                    Fn::Sub: "${ProjectName}-vpcId"
+
+Outputs:
+    dockerMasterDNS:
+        Description: docker manager public DNS
+        Value: !GetAtt dockerManager.PublicDnsName
+        Export:
+            Name: "{{ ProjectName }}-dockerManagerPublicDns"

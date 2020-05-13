@@ -1,0 +1,33 @@
+# Configure the local system in order to run the linting, test and aws deployment.
+---
+
+- hosts: all
+  name: "Configure building environment"
+  gather_facts: false
+  vars_files: "vars/configure_building_environment.yml"
+
+  tasks:
+    - name: Install virtualenv
+      become: true
+      apt:
+        name: "virtualenv={{ virtual_env_version }}"
+        state: present
+        update_cache: true
+        allow_unauthenticated: true
+
+    - name: Install fd package
+      become: true
+      apt:
+        state: present
+        deb: "{{ fd_download_path }}"
+
+    - name: Copy requirements
+      copy:
+        src: python_requirements.txt
+        dest: /tmp/requirements.txt
+
+    - name: Create virtual environment"
+      pip:
+        virtualenv: "{{ virtual_env_path }}"
+        state: present
+        requirements: /tmp/requirements.txt

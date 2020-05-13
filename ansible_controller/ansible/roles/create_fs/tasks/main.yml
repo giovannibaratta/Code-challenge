@@ -1,0 +1,15 @@
+---
+- name: "Load vars"
+  include_vars: main.yml
+
+- name: "Make file system"
+  filesystem:
+    fstype: ext4
+    dev: "{{ device_path }}"
+
+- name: "Mount extra drive"
+  mount:
+    state: mounted
+    fstype: "{{ file_system_type }}"
+    path: "{{ mounting_point }}"
+    src: "{{ device_path }}"

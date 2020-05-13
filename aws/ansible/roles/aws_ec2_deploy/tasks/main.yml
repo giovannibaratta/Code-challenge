@@ -1,0 +1,17 @@
+---
+- name: "Load vars"
+  include_vars: ec2.yml
+
+- name: "Generate template"
+  template:
+    src: ec2.yml.j2
+    dest: files/cloudformation/ec2.yml
+
+- name: "Create cloudformation stack"
+  cloudformation:
+    stack_name: "{{ ProjectName }}-ec2"
+    state: "present"
+    region: "us-east-1"
+    disable_rollback: false
+    template_body: "{{ lookup('file', 'files/cloudformation/ec2.yml') }}"
+    template_parameters: "{{ lookup('file', 'vars/ec2.yml') | from_yaml }}"

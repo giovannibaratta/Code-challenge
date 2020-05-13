@@ -1,5 +1,0 @@
----
-- name: "Deploy AWS"
-  hosts: localhost
-  roles:
-    - aws_deploy

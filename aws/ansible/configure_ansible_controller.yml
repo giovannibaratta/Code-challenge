@@ -1,0 +1,75 @@
+# CentOs instance
+---
+- hosts: all
+  name: "Configure ansible controller"
+  vars_files: "vars/configure_ansible_controller.yml"
+  vars:
+    epel_dest: '/tmp/epel.rpm'
+    local_project_root_dir: "{{ lookup('env', 'ROOT_PATH') }}"
+    remote_project_root_dir: '~'
+
+  tasks:
+    - name: "Test local ROOT PATH env variable"
+      debug:
+        msg: "Local root path : {{ local_project_root_dir }}"
+
+    - name: "Download epel package"
+      get_url:
+        url: "{{ epel_release_url }}"
+        dest: "{{ epel_dest }}"
+
+    - name: "Install epel"
+      become: true
+      yum:
+        state: present
+        update_cache: true
+        name:
+          - "{{ epel_dest }}"
+
+    - name: "Install dependencies"
+      become: true
+      yum:
+        state: present
+        update_cache: true
+        name:
+          - 'python-pip'
+          - 'ansible-2.9.7*'
+          - 'unzip-6.0-21*'
+
+    - name: Copy requirements
+      copy:
+        src: python_requirements.txt
+        dest: /tmp/requirements.txt
+
+    - name: "Install pip requirements"
+      become: true
+      pip:
+        state: present
+        requirements: /tmp/requirements.txt
+
+    - name: "Zip local repo"
+      delegate_to: 127.0.0.1
+      archive:
+        path: "{{ local_project_root_dir }}"
+        dest: /tmp/archive_repo.zip
+        format: zip
+
+    - name: "Copy and unzip archive"
+      unarchive:
+        remote_src: false
+        src: '/tmp/archive_repo.zip'
+        dest: "{{ remote_project_root_dir }}"
+
+    - name: "Delete controller addressh if present [local]"
+      delegate_to: 127.0.0.1
+      file:
+        state: absent
+        path: "/tmp/ansible_controller_address"
+
+    - name: "Write controller address [local]"
+      delegate_to: 127.0.0.1
+      lineinfile:
+        create: true
+        state: present
+        path: "/tmp/ansible_controller_address"
+        line: "{{ inventory_hostname }}"
