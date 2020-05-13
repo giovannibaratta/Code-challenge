@@ -28,4 +28,5 @@ before_script:
 - ci/scripts/ansible_lint.sh
 deploy:
   - provider: script
+    skip_cleanup: true
     script: aws/scripts/deploy_all.sh
