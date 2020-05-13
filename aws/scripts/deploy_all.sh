@@ -1,4 +1,3 @@
-
 # Verifica se ROOT_PATH è settato e non vuoto
 if [ ! ${ROOT_PATH:-} ]
 then 
