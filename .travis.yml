@@ -10,11 +10,7 @@ branches:
 env:
   global:
   - ROOT_PATH=$TRAVIS_BUILD_DIR
-<<<<<<< HEAD
   - ANSIBLE_VERSION='2.9*'
-=======
-  - ANSIBLE_VERSION='2.9.6*'
->>>>>>> bae58377d78393c84774e3d1772932023f9cbfd3
   - DOCKER_PATH=ansible_controller/ansible/files/ssh_keys
   - ANSIBLE_PATH=aws/ansible/files/ssh_keys
   - PYTHON_INTERPRETER=$( which python3 )
@@ -32,8 +28,4 @@ before_script:
 - ci/scripts/ansible_lint.sh
 deploy:
   - provider: script
-    script:
-      - aws/scripts/deploy_network.sh
-      - aws/scripts/deploy_ec2.sh
-      - aws/scripts/configure_ansible_controller.sh
-      - aws/scripts/launch_docker_configuration.sh
+    script: aws/scripts/deploy_all.sh
