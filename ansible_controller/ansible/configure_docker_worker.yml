@@ -1,0 +1,11 @@
+- hosts: docker_swarm_worker
+  name: "Configure docker engine on docker worker"
+  vars:
+      skip_docker_py: true
+      skip_docker_compose: true
+      skip_docker_swarm: true
+      docker_service_override: ""
+
+  roles:
+      - role: atosatto.docker-swarm
+        become: true

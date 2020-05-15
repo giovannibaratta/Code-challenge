@@ -1,0 +1,17 @@
+---
+# vars file for docker_hardening
+root_path: '~'
+ca_private_key_name: 'CA-private.pem'
+ca_certificate_name: 'CA-certificate.pem'
+ca_signing_request: 'CA-signing-request.csr'
+ca_email: 'bargiovi@hotmail.it'
+ca_country_name: 'IT'
+ca_oranization_name: 'Personal'
+ca_state: "Modena"
+ca_organizational_unit: 'Dev'
+server_private_key_name: 'docker-manager-private.pem'
+server_certificate_name: 'dokcer-manager-certificate.pem'
+server_signing_request: 'docker-manager-signing-request.csr'
+client_private_key_name: 'docker-client-private.pem'
+client_certificate_name: 'dokcer-client-certificate.pem'
+client_signing_request: 'docker-client-signing-request.csr'

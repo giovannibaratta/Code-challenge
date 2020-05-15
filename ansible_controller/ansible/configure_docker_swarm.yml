@@ -1,0 +1,11 @@
+- hosts: all
+  name: "Configure docker swarm"
+  vars:
+      skip_docker_py: true
+      skip_docker_compose: true
+      skip_docker_swarm: false
+      skip_engine: true
+
+  roles:
+      - role: atosatto.docker-swarm
+        become: true

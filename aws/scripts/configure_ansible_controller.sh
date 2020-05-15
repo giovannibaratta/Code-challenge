@@ -6,7 +6,7 @@ then
 fi
 
 RETRIES=5
-SLEEP_TIME=60
+SLEEP_TIME=90
 
 CI_SCRIPT_DIR="$ROOT_PATH/ci/scripts"
 VIRTUAL_ENV_DIR=$( $CI_SCRIPT_DIR/retrieve_virtual_environment_dir.sh )

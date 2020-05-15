@@ -1,0 +1,122 @@
+---
+# tasks file for docker_hardening
+- name: "Load vars"
+  include_vars: main.yml
+
+- name: "Generate CA private key"
+  openssl_privatekey:
+      path: "{{ root_path }}/{{ ca_private_key_name }}"
+      size: 4096
+      state: present
+      type: RSA
+
+- name: 'Generate CA signing request'
+  openssl_csr:
+      common_name: "{{ inventory_hostname }}"
+      country_name: "{{ ca_country_name }}"
+      digest: sha256
+      email_address: "{{ ca_email }}"
+      path: "{{ root_path }}/{{ ca_signing_request }}"
+      privatekey_path: "{{ root_path }}/{{ ca_private_key_name }}"
+      organization_name: "{{ ca_oranization_name }}"
+      organizational_unit_name: "{{ ca_organizational_unit }}"
+      state: present
+      state_or_province_name: "{{ ca_state }}"
+
+- name: "Generate CA certificate"
+  openssl_certificate:
+      path: "{{ root_path }}/{{ ca_certificate_name }}"
+      privatekey_path: "{{ root_path }}/{{ ca_private_key_name }}"
+      csr_path: "{{ root_path }}/{{ ca_signing_request }}"
+      provider: selfsigned
+
+- name: "Generate server private key"
+  openssl_privatekey:
+      path: "{{ root_path }}/{{ server_private_key_name }}"
+      size: 4096
+      state: present
+      type: RSA
+
+- name: 'Generate server signing request'
+  openssl_csr:
+      common_name: "{{ inventory_hostname }}"
+      digest: sha256
+      path: "{{ root_path }}/{{ server_signing_request }}"
+      privatekey_path: "{{ root_path }}/{{ server_private_key_name }}"
+      state: present
+      extended_key_usage:
+          - serverAuth
+      subject_alt_name:
+          - "DNS:IP:{{ inventory_hostname }}"
+
+- name: "Generate server certificate"
+  openssl_certificate:
+      path: "{{ root_path }}/{{ server_certificate_name }}"
+      csr_path: "{{ root_path }}/{{ server_signing_request }}"
+      provider: ownca
+      ownca_path: "{{ root_path }}/{{ ca_certificate_name }}"
+      ownca_privatekey_path: "{{ root_path }}/{{ ca_private_key_name }}"
+
+- name: "Generate client private key"
+  openssl_privatekey:
+      path: "{{ root_path }}/{{ client_private_key_name }}"
+      size: 4096
+      state: present
+      type: RSA
+
+- name: 'Generate client signing request'
+  openssl_csr:
+      common_name: "client"
+      digest: sha256
+      path: "{{ root_path }}/{{ client_signing_request }}"
+      privatekey_path: "{{ root_path }}/{{ client_private_key_name }}"
+      state: present
+      extended_key_usage:
+          - clientAuth
+
+- name: "Generate server certificate"
+  openssl_certificate:
+      path: "{{ root_path }}/{{ client_certificate_name }}"
+      csr_path: "{{ root_path }}/{{ client_signing_request }}"
+      provider: ownca
+      ownca_path: "{{ root_path }}/{{ ca_certificate_name }}"
+      ownca_privatekey_path: "{{ root_path }}/{{ ca_private_key_name }}"
+
+- name: "Download certificate"
+  fetch:
+      src: "{{ item }}"
+      dest: "~/docker_secure/{{ inventory_hostname }}/"
+      flat: true
+  with_list:
+      - "{{ root_path }}/{{ client_certificate_name }}"
+      - "{{ root_path }}/{{ client_private_key_name }}"
+
+- name: "Clean up"
+  file:
+      path: "{{ item }}"
+      state: absent
+  with_list:
+      - "{{ root_path }}/{{ server_signing_request }}"
+      - "{{ root_path }}/{{ client_signing_request }}"
+      - "{{ root_path }}/{{ client_private_key_name }}"
+      - "{{ root_path }}/{{ client_certificate_name }}"
+
+- name: "Change private key permission "
+  file:
+      path: "{{ item }}"
+      state: file
+      mode: 0400
+      owner: root
+  with_list:
+      - "{{ root_path }}/{{ ca_private_key_name }}"
+      - "{{ root_path }}/{{ server_private_key_name }}"
+
+- name: "Change certificate permission "
+  file:
+      path: "{{ item }}"
+      state: file
+      mode: 0444
+      owner: root
+  with_list:
+      - "{{ root_path }}/{{ ca_certificate_name }}"
+      - "{{ root_path }}/{{ server_certificate_name }}"
