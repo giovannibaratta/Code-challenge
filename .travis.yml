@@ -29,10 +29,12 @@ install:
 before_script:
   - ci/scripts/yamllint.sh
   - ci/scripts/ansible_lint.sh
+  - sudo ci/scripts/ansible_controller_configuration_molecule_test.sh
 
 before_deploy:
   - sudo apt install tree
   - tree $ROOT_PATH
+  - ls -la /tmp/
 
 deploy:
   - provider: script

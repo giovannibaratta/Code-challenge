@@ -1,0 +1,23 @@
+---
+- name: Verify
+  hosts: all
+  tasks:
+    - name: "Gather packages facts"
+      yum:
+        list: installed
+      register: packages_facts
+
+    - name: "Ensure packages are installed"
+      assert:
+        that: >
+          "{{ item }}" in
+          "{{ packages_facts.results
+              | json_query(package_filter)
+              | list
+          }}"
+      vars:
+        package_filter: "[?yumstate=='installed'].name"
+      with_items:
+        - 'ansible'
+        - 'python2-pip'
+        - 'unzip'

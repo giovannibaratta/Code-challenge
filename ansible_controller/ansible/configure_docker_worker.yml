@@ -3,7 +3,7 @@
   vars:
       skip_docker_py: true
       skip_docker_compose: true
-      skip_docker_swarm: true
+      skip_swarm: true
       docker_service_override: ""
 
   roles:

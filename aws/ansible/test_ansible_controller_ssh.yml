@@ -1,0 +1,8 @@
+# CentOs instance
+---
+- hosts: all
+  name: "Configure ansible controller"
+  tasks:
+    - name: "Test ssh connection"
+      debug:
+        msg: "Connected"

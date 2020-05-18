@@ -1,0 +1,9 @@
+---
+- name: Converge
+  hosts: all
+  tasks:
+    - name: "Include ansible"
+      include_role:
+        name: "ansible"
+
+- import_playbook: ../../configure_building_environment.yml

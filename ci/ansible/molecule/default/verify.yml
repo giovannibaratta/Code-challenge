@@ -1,0 +1,19 @@
+---
+# This is an example playbook to execute Ansible tests.
+
+- name: Verify
+  hosts: all
+  tasks:
+    - name: "Gather packages facts"
+      package_facts:
+        manager: auto
+
+    - name: "Ensure virtualenv is installed"
+      assert:
+        that:
+          - "'virtualenv' in ansible_facts.packages"
+          
+    - name: "Ensure fd is installed"
+      assert:
+        that:
+          - "'fd' in ansible_facts.packages"

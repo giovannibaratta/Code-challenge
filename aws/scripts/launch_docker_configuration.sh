@@ -8,7 +8,7 @@ then
     exit 1
 fi
 
-ANSIBLE_CONTROLLER_ADDRESS="centos@$( cat '/tmp/ansible_controller_address' )"
+ANSIBLE_CONTROLLER_ADDRESS="centos@$( cat /tmp/ansible_controller_address )"
 REMOTE_REPO_DIR='~/Code-challenge'
 PATH_SSH_KEY="$ROOT_PATH/aws/ansible/files/ssh_keys/ansible_controller.pem"
 REMOTE_COMMAND="$REMOTE_REPO_DIR/ansible_controller/scripts/configure_docker_from_controller.sh"

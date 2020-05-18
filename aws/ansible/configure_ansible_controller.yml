@@ -51,7 +51,7 @@
       delegate_to: 127.0.0.1
       archive:
         path: "{{ local_project_root_dir }}"
-        dest: /tmp/archive_repo.zip
+        dest: '/tmp/archive_repo.zip'
         format: zip
 
     - name: "Copy and unzip archive"
@@ -60,16 +60,8 @@
         src: '/tmp/archive_repo.zip'
         dest: "{{ remote_project_root_dir }}"
 
-    - name: "Delete controller addressh if present [local]"
+    - name: "Copy controller address to localhost"
       delegate_to: 127.0.0.1
-      file:
-        state: absent
-        path: "/tmp/ansible_controller_address"
-
-    - name: "Write controller address [local]"
-      delegate_to: 127.0.0.1
-      lineinfile:
-        create: true
-        state: present
-        path: "/tmp/ansible_controller_address"
-        line: "{{ inventory_hostname }}"
+      copy:
+        dest: '/tmp/ansible_controller_address'
+        content: "{{ inventory_hostname }}"

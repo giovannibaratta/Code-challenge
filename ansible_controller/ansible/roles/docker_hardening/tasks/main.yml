@@ -3,6 +3,21 @@
 - name: "Load vars"
   include_vars: main.yml
 
+- name: "Clean files"
+  file:
+      state: absent
+      path: "{{ item }}"
+  with_items:
+      - "{{ root_path }}/{{ ca_private_key_name }}"
+      - "{{ root_path }}/{{ ca_signing_request }}"
+      - "{{ root_path }}/{{ ca_certificate_name }}"
+      - "{{ root_path }}/{{ server_private_key_name }}"
+      - "{{ root_path }}/{{ server_signing_request }}"
+      - "{{ root_path }}/{{ server_certificate_name }}"
+      - "{{ root_path }}/{{ client_private_key_name }}"
+      - "{{ root_path }}/{{ client_certificate_name }}"
+      - "{{ root_path }}/{{ client_signing_request }}"
+
 - name: "Generate CA private key"
   openssl_privatekey:
       path: "{{ root_path }}/{{ ca_private_key_name }}"
@@ -12,12 +27,14 @@
 
 - name: 'Generate CA signing request'
   openssl_csr:
+      privatekey_path: "{{ root_path }}/{{ ca_private_key_name }}"
       common_name: "{{ inventory_hostname }}"
+      basic_constraints:
+          - CA:TRUE
       country_name: "{{ ca_country_name }}"
       digest: sha256
       email_address: "{{ ca_email }}"
       path: "{{ root_path }}/{{ ca_signing_request }}"
-      privatekey_path: "{{ root_path }}/{{ ca_private_key_name }}"
       organization_name: "{{ ca_oranization_name }}"
       organizational_unit_name: "{{ ca_organizational_unit }}"
       state: present
@@ -25,8 +42,8 @@
 
 - name: "Generate CA certificate"
   openssl_certificate:
-      path: "{{ root_path }}/{{ ca_certificate_name }}"
       privatekey_path: "{{ root_path }}/{{ ca_private_key_name }}"
+      path: "{{ root_path }}/{{ ca_certificate_name }}"
       csr_path: "{{ root_path }}/{{ ca_signing_request }}"
       provider: selfsigned
 
@@ -47,7 +64,7 @@
       extended_key_usage:
           - serverAuth
       subject_alt_name:
-          - "DNS:IP:{{ inventory_hostname }}"
+          - "DNS:{{ inventory_hostname }}"
 
 - name: "Generate server certificate"
   openssl_certificate:
@@ -90,6 +107,7 @@
   with_list:
       - "{{ root_path }}/{{ client_certificate_name }}"
       - "{{ root_path }}/{{ client_private_key_name }}"
+      - "{{ root_path }}/{{ ca_certificate_name }}"
 
 - name: "Clean up"
   file:
